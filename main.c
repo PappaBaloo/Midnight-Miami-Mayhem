@@ -7,10 +7,40 @@
 #include "rlgl.h"
 #include <float.h>
 
+// DEV MODE
+#define DEV_MODE
+
 long oldseed;
 Color neonBlue = (Color){135, 206, 250, 255};
 Color neonPurple = (Color){255, 0, 255, 255};
 Color neonRed = (Color){255, 0, 128, 255};
+
+void drawBackgroundLevel(Texture background)
+{
+    DrawTexture(background, 0, 0, WHITE);
+}
+
+void getControls(Rectangle *player, Camera2D *characterCamera)
+{
+
+    if (IsKeyDown(KEY_W))
+    {
+        player->y -= 5.5f;
+    }
+    if (IsKeyDown(KEY_A))
+    {
+        player->x -= 5.5f;
+    }
+    if (IsKeyDown(KEY_S))
+    {
+        player->y += 5.5f;
+    }
+    if (IsKeyDown(KEY_D))
+    {
+        player->x += 5.5f;
+    }
+    characterCamera->target = (Vector2){player->x, player->y};
+}
 
 int getRand(int min, int max)
 {
@@ -41,6 +71,9 @@ int main(void)
     // Load custom font
     Font font = LoadFont("fonts/Alien-Encounters-Italic.ttf");
 
+    // Load level textures
+    Texture2D level1 = LoadTexture("textures/level1.png");
+
     // Define the main menu options
     const char *options[3] = {
         "New Game",
@@ -54,6 +87,22 @@ int main(void)
     // Define timer
     float timer = 0.0f;
     float duration = 2.0f;
+
+    // Define level 1 start
+    Vector2 levelStartPos = {30, 30};
+
+    // Define player rec in temporary replacement for the texture
+    Rectangle player;
+    player.height = 15;
+    player.width = 15;
+    player.x = levelStartPos.x;
+    player.y = levelStartPos.y;
+
+    // Initialize camera
+    Camera2D characterCamera = {0};
+    characterCamera.target = (Vector2){player.x, player.y};
+    characterCamera.offset = (Vector2){screenWidth / 2.0f, screenHeight / 2.0f};
+    characterCamera.zoom = 1.0f;
 
     // Main game loop
     SetTargetFPS(60);
@@ -75,6 +124,29 @@ int main(void)
             {
             case 0:
                 // Start the new game
+
+                // Main game loop
+                while (!WindowShouldClose())
+                {
+
+                    // Player movement and camera controls
+                    getControls(&player, &characterCamera);
+                    characterCamera.zoom += ((float)GetMouseWheelMove() * 0.05f);
+                    characterCamera.zoom = Clamp(characterCamera.zoom, 0.5f, 2.0f);
+
+                    // Clear the screen
+                    BeginDrawing();
+                    ClearBackground(BLACK);
+                    BeginMode2D(characterCamera);
+                    {
+                        DrawTexture(level1, 0, 0, WHITE);
+                        DrawRectangleRec(player, WHITE);
+                    }
+
+                    EndDrawing();
+                }
+
+                // End the game
                 break;
             case 1:
                 // Open the options menu
@@ -93,7 +165,7 @@ int main(void)
 
         // Draw the main menu options and game name
 
-        DrawTextEx(font, "Midnight Miami Mayhem", (Vector2){screenWidth / 2 - MeasureTextEx(font, "Midnight Miami Mayhem", fontSize, 2).x / 2, screenHeight / 2 - fontSize * 3.5f}, fontSize, 2, neonRed);
+        DrawTextEx(font, "Midnight Miami Mayhem", (Vector2){screenWidth / 2 - MeasureTextEx(font, "Midnight Miami Mayhem", fontSize * 1.5, 2).x / 2, screenHeight / 2 - fontSize * 3.5f}, fontSize * 1.5, 2, neonRed);
 
         for (int i = 0; i < 3; i++)
         {
@@ -110,6 +182,7 @@ int main(void)
     }
 
     // Close the window and de-initialize the game context
+    UnloadTexture(level1);
     UnloadFont(font);
     CloseWindow();
     return 0;
