@@ -89,7 +89,7 @@ int main(void)
     int volume = 5;
 
     // Load Crosshair textures and disable default mouse cursor
-    Texture2D crosshair = LoadTexture("textures(crosshairs.png)");
+    Texture2D crosshair = LoadTexture("textures/crosshairs.png");
 
     // Load level textures
     Texture2D level1 = LoadTexture("textures/level1.png");
@@ -136,9 +136,6 @@ int main(void)
     while (!WindowShouldClose())
     {
 
-        // Define mouse position and texture
-        Vector2 mousePos = GetMousePosition();
-
         // Check for user input
         if (IsKeyPressed(KEY_DOWN) || IsKeyPressed(KEY_S))
         {
@@ -159,9 +156,19 @@ int main(void)
                 while (!WindowShouldClose())
                 {
 
+                    Vector2 mousePos = GetMousePosition();
+                    Vector2 worldMousePos = GetScreenToWorld2D(mousePos, characterCamera);
+
+                    // Mouse Rec
+                    Rectangle mouseRec;
+                    mouseRec.height = 50;
+                    mouseRec.width = 50;
+                    mouseRec.x = worldMousePos.x;
+                    mouseRec.y = worldMousePos.y;
+
                     // Player movement and camera controls
                     getControls(&player, &characterCamera);
-                    // characterCamera.zoom += ((float)GetMouseWheelMove() * 0.05f);
+                    characterCamera.zoom += ((float)GetMouseWheelMove() * 0.05f);
                     characterCamera.zoom = Clamp(characterCamera.zoom, 0.5f, 2.0f);
 
                     // Clear the screen
@@ -169,12 +176,17 @@ int main(void)
                     ClearBackground(BLACK);
                     BeginMode2D(characterCamera);
                     {
+
                         DrawTexture(level1, 0, 0, WHITE);
                         DrawRectangleRec(player, WHITE);
-                        DrawTexture(crosshair, mousePos.x, mousePos.y, WHITE);
-                        printf("MousePosX: %f \n", mousePos.x);
-                        printf("MousePosY: %f", mousePos.y);
+                        // DrawRectangleRec(mouseRec, RED);
+                        DrawTexture(crosshair, worldMousePos.x - crosshair.width / 2, worldMousePos.y - crosshair.height / 2, WHITE);
                     }
+
+                    printf("MousePosX: %f \n", mousePos.x);
+                    printf("MousePosY: %f", mousePos.y);
+                    printf("RECTANGLEX: %f \n", mouseRec.x);
+                    printf("rectangleY: %f", mouseRec.y);
 
                     EndDrawing();
                 }
