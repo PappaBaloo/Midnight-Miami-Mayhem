@@ -117,6 +117,7 @@ int main(void)
 
     // Define level 1 start
     Vector2 levelStartPos = {30, level1.height - 30};
+    Vector2 testing00 = {0, 0};
 
     // Define player rec in temporary replacement for the texture
     Rectangle player;
@@ -165,6 +166,7 @@ int main(void)
                     mouseRec.width = 50;
                     mouseRec.x = worldMousePos.x;
                     mouseRec.y = worldMousePos.y;
+                    float playerRotation = 0.0f;
 
                     // Player movement and camera controls
                     getControls(&player, &characterCamera);
@@ -178,9 +180,11 @@ int main(void)
                     {
 
                         DrawTexture(level1, 0, 0, WHITE);
-                        DrawRectangleRec(player, WHITE);
-                        // DrawRectangleRec(mouseRec, RED);
+                        // DrawRectangleRec(player, WHITE);
+                        DrawRectanglePro(player, testing00, playerRotation, WHITE);
                         DrawTexture(crosshair, worldMousePos.x - crosshair.width / 2, worldMousePos.y - crosshair.height / 2, WHITE);
+                        DrawText(TextFormat("RectangleX: %f", player.x), 50, 50, 50, GREEN);
+                        DrawText(TextFormat("RectangleY: %f", player.y), 50, 100, 50, GREEN);
                     }
 
                     printf("MousePosX: %f \n", mousePos.x);
